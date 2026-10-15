@@ -1,0 +1,7 @@
+*.kubeconfig
+kubeconfig
+.kube/
+*.key
+*.pem
+.env
+secrets*.yaml
