@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noc-api
+  namespace: monitoring
+  labels: {app: noc-api}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: noc-api}
+  template:
+    metadata:
+      labels: {app: noc-api}
+    spec:
+      containers:
+        - name: noc-api
+          image: kubenoc-api:0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: PROMETHEUS_URL
+              value: http://monitoring-kube-prometheus-prometheus.monitoring.svc:9090
+          readinessProbe:
+            httpGet: {path: /healthz, port: 8000}
+          livenessProbe:
+            httpGet: {path: /healthz, port: 8000}
+            initialDelaySeconds: 10
+          resources:
+            requests: {cpu: 20m, memory: 64Mi}
+            limits: {cpu: 200m, memory: 128Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities: {drop: ["ALL"]}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: noc-api
+  namespace: monitoring
+spec:
+  type: NodePort
+  selector: {app: noc-api}
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30080
