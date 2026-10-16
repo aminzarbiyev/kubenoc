@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: ping-targets
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  jobName: icmp-ping
+  interval: 30s
+  module: icmp
+  prober:
+    url: blackbox-prometheus-blackbox-exporter.monitoring.svc:9115
+  targets:
+    staticConfig:
+      static:
+        - 172.16.10.254
+        - 8.8.8.8
+        - 1.1.1.1
