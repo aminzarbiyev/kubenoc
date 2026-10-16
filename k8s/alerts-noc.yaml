@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: noc-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: noc.rules
+      rules:
+        - alert: HostUnreachable
+          expr: probe_success{job="icmp-ping"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            team: noc
+          annotations:
+            summary: "Cihaz əlçatmazdır: {{ $labels.instance }}"
+            description: "{{ $labels.instance }} 1 dəqiqədən çoxdur ping-ə cavab vermir."
